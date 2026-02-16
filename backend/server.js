@@ -3,6 +3,7 @@ import cors from "cors";
 import config from "./config/var.js"
 import { ConnectDb } from "./config/db.js";
 import authRoute from "./routes/auth.routes.js";
+import productRoutes from "./routes/product.routes.js";
 
 const app=express();
 
@@ -14,7 +15,8 @@ app.use(express.json())
 
 ConnectDb();
 
-app.use("/api",authRoute)
+app.use("/api/auth",authRoute);
+app.use("/api/product",productRoutes)
 app.get("/health",(req,res)=>{
     res.send("server is running")
 })

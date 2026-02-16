@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { api } from "../api/axios";
 import Spinner from "../components/UI/Spinner";
+import {useNavigate} from "react-router"
 
 interface FormData {
   name: string;
@@ -12,6 +13,7 @@ interface FormData {
 
   
 export default function Singup(){
+  
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -19,6 +21,8 @@ export default function Singup(){
   });
   const [loading,setLoading]=useState<boolean>(false);
   const [error,setError]=useState<string>("")
+  
+  const navigate=useNavigate();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -118,7 +122,7 @@ export default function Singup(){
 
         <p className="text-center text-sm text-gray-600 mt-5">
           Already have an account?{" "}
-          <span className="text-indigo-500 font-medium cursor-pointer hover:underline">
+          <span onClick={()=>navigate("/login")} className="text-indigo-500 font-medium cursor-pointer hover:underline">
             Login
           </span>
         </p>
