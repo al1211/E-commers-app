@@ -14,7 +14,10 @@ app.use(express.json())
 
 ConnectDb();
 
-app.use("/",authRoute)
+app.use("/api",authRoute)
+app.get("/health",(req,res)=>{
+    res.send("server is running")
+})
 
 app.listen(PORT,()=>{
     console.log(`server is listen ${PORT}`)
