@@ -4,7 +4,6 @@ import Product from "../models/Products.models.js";
 // Create a new product
 export const createProduct=async(req,res)=>{
     try{
-        console.log(req.body)
         const product=await Product.create(req.body);
         res.json({
             message:"Product created succesfully",
@@ -29,7 +28,7 @@ export const getAllProducts= async(req,res)=>{
 }
 
 // Get a single product
-export const getSingleProduct=async(req,res)=>{
+export const updateProductRoute=async(req,res)=>{
     try{
         const updated=await Product.findByIdAndUpdate(req.params.id,req.body,{new:true});
 
