@@ -96,16 +96,16 @@ const AddProduct: React.FC = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+    // const validationErrors = validate();
+    // if (Object.keys(validationErrors).length > 0) {
+    //   setErrors(validationErrors);
+    //   return;
+    // }
 
     try {
       setLoading(true);
 
-      await api.post("/create", {
+      await api.post("/product/create", {
         ...form,
         price: Number(form.price),
       });

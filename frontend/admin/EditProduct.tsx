@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
+import { api } from "../api/axios";
 // import { api } from "../api/axios";
 
 // ── Mock data — replace with real API fetch ──────────────────────────────────
@@ -21,6 +22,7 @@ const CATEGORIES = [
 ];
 
 interface ProductForm {
+  _id:number,
   title: string;
   description: string;
   price: string;
@@ -34,6 +36,7 @@ const EditProduct = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState<ProductForm>({
+    _id:0,
     title: "",
     description: "",
     price: "",
@@ -50,28 +53,21 @@ const EditProduct = () => {
   const [focused, setFocused] = useState<string>("");
   const [saved, setSaved] = useState<boolean>(false);
 
-  // Simulate fetching product by ID
-  useEffect(() => {
-    const fetchProduct = async () => {
-      setFetching(true);
-      await new Promise((r) => setTimeout(r, 800));
-      // Replace with: const res = await api.get(`/products/${id}`);
-      const data = mockProduct;
-      const formData: ProductForm = {
-        title: data.title,
-        description: data.description,
-        price: String(data.price),
-        category: data.category,
-        image: data.image,
-        stock: data.stock,
-      };
-      setForm(formData);
-      setOriginalForm(formData);
-      setPreview(data.image);
-      setFetching(false);
-    };
-    fetchProduct();
-  }, [id]);
+  useEffect(()=>{
+     const fetchProducts=async()=>{
+       try{
+         setFetching(true)
+         const respnse=await api.get("/product/get");
+         const product =  respnse.data.find((p:any)=>p._id===id)
+           setForm(product)
+           setFetching(false);
+      }catch(err){
+          console.error(err);
+      }
+     }
+     fetchProducts();
+  },[])
+ 
 
   const isDirty = JSON.stringify(form) !== JSON.stringify(originalForm);
 
@@ -98,18 +94,18 @@ const EditProduct = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    setLoading(true);
-    // Replace with: await api.put(`/products/${id}`, { ...form, price: Number(form.price) });
-    await new Promise((r) => setTimeout(r, 1200));
+    try{
+        setLoading(true);
+
+await api.put(`/product/${id}`,{...form , price:Number(form.price)})
     setLoading(false);
-    setOriginalForm(form);
     setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+      navigate("/admin/product/list")
+    }catch(err){
+       console.error(err);
+       setLoading(false);
+    }
+  
   };
 
   const handleReset = () => {
@@ -119,9 +115,9 @@ const EditProduct = () => {
       setErrors({});
     }
   };
-
+ console.log(form);
   const inputBase =
-    "w-full bg-white/[0.06] border text-slate-200 text-sm rounded-xl px-4 py-3 placeholder-slate-600 transition-all duration-200 focus:outline-none focus:bg-white/[0.08]";
+    "w-full bg-white/[0.06] border  text-slate-600 text-sm rounded-xl px-4 py-3 placeholder-slate-600 transition-all duration-200 focus:outline-none focus:bg-white/[0.08]";
   const inputFocus = (field: string) =>
     focused === field
       ? "border-violet-400 ring-2 ring-violet-500/20"
@@ -134,7 +130,7 @@ const EditProduct = () => {
     return (
       <>
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap'); .ep-root * { font-family: 'Sora', sans-serif; } @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.8} } .skeleton { animation: pulse 1.5s ease-in-out infinite; background: rgba(255,255,255,0.07); border-radius: 12px; }`}</style>
-        <div className="ep-root min-h-screen bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 p-6 flex items-center justify-center">
+        <div className="ep-root min-h-screen  p-6 flex items-center justify-center">
           <div className="w-full max-w-5xl space-y-5">
             <div className="skeleton h-8 w-48" />
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -155,7 +151,7 @@ const EditProduct = () => {
     <>
      
 
-      <div className="ep-root min-h-screen bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 relative overflow-hidden">
+      <div className="ep-root min-h-screen relative overflow-hidden">
 
         {/* Background blobs */}
         <div className="blob absolute top-0 right-0 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -235,7 +231,7 @@ const EditProduct = () => {
                   rows={5}
                   className={`${inputBase} ${inputFocus("description")}`}
                 />
-                <p className="text-right text-xs text-slate-600 mt-1">{form.description.length} chars</p>
+                <p className="text-right text-xs text-slate-600 mt-1">{form.description} chars</p>
               </div>
 
               {/* Price + Category */}

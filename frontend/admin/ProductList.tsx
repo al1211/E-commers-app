@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { api } from "../api/axios";
+import { useNavigate } from "react-router";
 
 // ── Mock data matching the Product mongoose schema ──────────────────────────
 const mockProducts = [
@@ -15,6 +17,17 @@ const mockProducts = [
 ];
 
 const CATEGORIES = ["All", "Electronics", "Sports", "Home & Garden", "Clothing", "Books", "Beauty", "Automotive", "Other"];
+
+
+interface Products{
+  _id:number,
+  title:string,
+  description:string,
+  price:number,
+  category:string,
+  image:string,
+  stock:number
+}
 
 const StockBadge = ({ stock }: { stock: number }) => {
   if (stock === 0)
@@ -31,7 +44,10 @@ const ProductList = () => {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(1);
+  const [products,setProducts]=useState<Products[]>([])
   const PER_PAGE = 6;
+
+  const navigate=useNavigate();
 
   // Filter + sort
   const filtered = mockProducts
@@ -69,12 +85,34 @@ const ProductList = () => {
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
     </svg>
   );
+  const handleNavigate=(id:number)=>{
+          navigate(`/admin/product/edit/${id}`)
+  }
+
+  const handleDelete=(e:number)=>{
+    try{
+
+    }catch(err){
+      
+    }
+  }
+  useEffect(()=>{
+   const fetchProducts=async()=>{
+     try{
+       const respnse=await api.get("/product/get");
+      setProducts(respnse.data);
+    }catch(err){
+        console.error(err);
+    }
+   }
+   fetchProducts();
+  },[])
 
   return (
     <>
      
 
-      <div className="pl-root min-h-screen bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 p-6 relative overflow-hidden">
+      <div className="pl-root min-h-screen  p-6 relative overflow-hidden">
 
         {/* Background blobs */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -87,7 +125,7 @@ const ProductList = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl font-semibold text-white tracking-tight">Products</h1>
-              <p className="text-slate-400 text-sm mt-0.5">{filtered.length} products found</p>
+              <p className="text-slate-400 text-sm mt-0.5">{products.length} products found</p>
             </div>
             <button className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg shadow-violet-500/20 transition-all active:scale-95">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -176,7 +214,7 @@ const ProductList = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.04]">
-                  {paginated.length === 0 ? (
+                  {false ? (
                     <tr>
                       <td colSpan={7} className="px-5 py-16 text-center">
                         <svg className="w-10 h-10 text-slate-700 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -187,29 +225,30 @@ const ProductList = () => {
                       </td>
                     </tr>
                   ) : (
-                    paginated.map((product) => (
+                    products.map((product) => (
                       <tr key={product._id} className="row-hover">
                         {/* Checkbox */}
                         <td className="px-5 py-4">
                           <input
                             type="checkbox"
-                            checked={selected.includes(product._id)}
-                            onChange={() => toggleSelect(product._id)}
+                            checked={selected.includes(String(product._id))}
+                            onChange={() => toggleSelect(String(product._id))}
                             className="w-3.5 h-3.5 accent-violet-500 cursor-pointer"
                           />
                         </td>
+                      
 
                         {/* Image */}
                         <td className="px-5 py-4">
                           <div className="w-10 h-10 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0">
-                            <img
+                           {product.image ? <img
                               src={product.image}
                               alt={product.title}
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23334155'/%3E%3C/svg%3E";
                               }}
-                            />
+                            />:<img src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" className="w-full h-full object-cover"/>}
                           </div>
                         </td>
 
@@ -239,21 +278,15 @@ const ProductList = () => {
                         {/* Actions */}
                         <td className="px-5 py-4">
                           <div className="flex items-center justify-end gap-1">
-                            {/* View */}
-                            <button className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/5 transition">
-                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                            </button>
+                          
                             {/* Edit */}
-                            <button className="p-1.5 rounded-lg text-slate-500 hover:text-violet-400 hover:bg-violet-500/10 transition">
+                            <button className="p-1.5 rounded-lg text-slate-500 hover:text-violet-400 hover:bg-violet-500/10 transition" onClick={()=>handleNavigate( product._id )}>
                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                               </svg>
                             </button>
                             {/* Delete */}
-                            <button className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition">
+                            <button className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition" onClick={()=>handleDelete(product._id)}>
                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                               </svg>
@@ -293,7 +326,7 @@ const ProductList = () => {
                           : "text-slate-400 hover:text-white hover:bg-white/5"
                       }`}
                     >
-                      {n}
+                      {n} 
                     </button>
                   ))}
                   <button
