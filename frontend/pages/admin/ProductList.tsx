@@ -1,7 +1,7 @@
-"use client";
+
 
 import React, { useEffect, useState } from "react";
-import { api } from "../api/axios";
+import { api } from "../../api/axios";
 import { useNavigate } from "react-router";
 
 // ── Mock data matching the Product mongoose schema ──────────────────────────

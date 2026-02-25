@@ -1,9 +1,9 @@
-"use client";
+
 
 import React,  { useState,  } from "react";
 import type {ChangeEvent, FormEvent,} from "react"
 import { useNavigate } from "react-router-dom";
-import { api } from "../api/axios";
+import { api } from "../../api/axios";
 
 
 

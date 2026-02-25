@@ -1,20 +1,11 @@
-"use client";
+
 
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { api } from "../api/axios";
+import { api } from "../../api/axios";
 // import { api } from "../api/axios";
 
-// ── Mock data — replace with real API fetch ──────────────────────────────────
-const mockProduct = {
-  _id: "1",
-  title: "Wireless Headphones Pro",
-  description: "Premium noise-cancelling over-ear headphones with 30-hour battery life and multi-device pairing support.",
-  price: 129.99,
-  category: "Electronics",
-  image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
-  stock: 42,
-};
+
 
 const CATEGORIES = [
   "Electronics", "Clothing", "Home & Garden",
@@ -58,7 +49,7 @@ const EditProduct = () => {
        try{
          setFetching(true)
          const respnse=await api.get("/product/get");
-         const product =  respnse.data.find((p:any)=>p._id===id)
+         const product = await respnse.data.find((p:any)=>p._id===id)
            setForm(product)
            setFetching(false);
       }catch(err){
@@ -172,7 +163,7 @@ await api.put(`/product/${id}`,{...form , price:Number(form.price)})
             </button>
             <div>
               <h1 className="text-2xl font-semibold text-white tracking-tight">Edit Product</h1>
-              <p className="text-slate-500 text-xs mt-0.5">ID: {id || mockProduct._id}</p>
+              <p className="text-slate-500 text-xs mt-0.5">ID: {id}</p>
             </div>
 
             {/* Unsaved indicator */}
@@ -206,7 +197,7 @@ await api.put(`/product/${id}`,{...form , price:Number(form.price)})
                 </label>
                 <input
                   name="title"
-                  value={form.title}
+                  value={form?.title || ""}
                   onChange={handleChange}
                   onFocus={() => setFocused("title")}
                   onBlur={() => setFocused("")}
@@ -223,7 +214,7 @@ await api.put(`/product/${id}`,{...form , price:Number(form.price)})
                 </label>
                 <textarea
                   name="description"
-                  value={form.description}
+                  value={form?.description || ""}
                   onChange={handleChange}
                   onFocus={() => setFocused("description")}
                   onBlur={() => setFocused("")}
@@ -247,7 +238,7 @@ await api.put(`/product/${id}`,{...form , price:Number(form.price)})
                       type="number"
                       min="0"
                       step="0.01"
-                      value={form.price}
+                      value={form?.price || ""}
                       onChange={handleChange}
                       onFocus={() => setFocused("price")}
                       onBlur={() => setFocused("")}
@@ -264,7 +255,7 @@ await api.put(`/product/${id}`,{...form , price:Number(form.price)})
                   </label>
                   <select
                     name="category"
-                    value={form.category}
+                    value={form?.category || ""}
                     onChange={handleChange}
                     className={`${inputBase} ${inputFocus("category")} appearance-none cursor-pointer`}
                   >
